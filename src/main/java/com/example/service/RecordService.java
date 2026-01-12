@@ -1,5 +1,6 @@
 package com.example.service;
 
+import com.example.entity.User;
 import com.example.repository.RecordRepository;
 import com.example.entity.Record;
 import com.example.entity.RecordStatus;
@@ -7,6 +8,7 @@ import com.example.entity.dto.RecordsContainerDto;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.data.domain.Sort;
 import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Transactional;
 
 import java.util.*;
 import java.util.stream.Collectors;
@@ -14,15 +16,21 @@ import java.util.stream.Collectors;
 @Service
 public class RecordService {
 
+    private final UserService userService;
     private final RecordRepository recordRepository;
 
     @Autowired
-    public RecordService(RecordRepository recordRepository) {
+    public RecordService(UserService userService, RecordRepository recordRepository) {
+        this.userService = userService;
         this.recordRepository = recordRepository;
     }
 
+    @Transactional(readOnly = true)
     public RecordsContainerDto findAllRecords(String filterMode) {
-        List<Record> records = recordRepository.findAll(Sort.by(Sort.Direction.ASC, "id"));
+        User user = userService.getCurrentUser();
+        List<Record> records = user.getRecords().stream()
+                .sorted(Comparator.comparingInt(Record::getId))
+                .collect(Collectors.toList());
         int numberOfDoneRecords = (int) records.stream().filter(record -> record.getStatus() == RecordStatus.DONE).count();
         int numberOfActiveRecords = (int) records.stream().filter(record -> record.getStatus() == RecordStatus.ACTIVE).count();
 
@@ -46,7 +54,8 @@ public class RecordService {
 
     public void saveRecord(String title) {
         if (title != null && !title.isBlank()) {
-            recordRepository.save(new Record(title));
+            User user = userService.getCurrentUser();
+            recordRepository.save(new Record(title, user));
         }
     }
 

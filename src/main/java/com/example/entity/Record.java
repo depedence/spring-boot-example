@@ -1,6 +1,6 @@
 package com.example.entity;
 
-import jakarta.persistence.*;
+import javax.persistence.*;
 
 @Entity
 @Table(name = "records")
@@ -17,11 +17,16 @@ public class Record {
     @Column(name = "status", nullable = false)
     private RecordStatus status;
 
+    @ManyToOne
+    @JoinColumn(name = "user_id")
+    private User user;
+
     public Record() {}
 
-    public Record(String title) {
+    public Record(String title, User user) {
         this.title = title;
         this.status = RecordStatus.ACTIVE;
+        this.user = user;
     }
 
     public int getId() {

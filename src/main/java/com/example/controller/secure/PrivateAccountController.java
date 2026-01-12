@@ -1,27 +1,35 @@
 package com.example.controller.secure;
 
 import com.example.entity.RecordStatus;
+import com.example.entity.User;
 import com.example.entity.dto.RecordsContainerDto;
 import com.example.service.RecordService;
+import com.example.service.UserService;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Controller;
 import org.springframework.ui.Model;
 import org.springframework.web.bind.annotation.*;
 
+import javax.servlet.http.HttpServletRequest;
+
 @Controller
 @RequestMapping("/account")
 public class PrivateAccountController {
 
+    private final UserService userService;
     private final RecordService recordService;
 
     @Autowired
-    public PrivateAccountController(RecordService recordService) {
+    public PrivateAccountController(UserService userService, RecordService recordService) {
+        this.userService = userService;
         this.recordService = recordService;
     }
 
     @GetMapping
-    public String getMainPage(Model model, @RequestParam(name = "filter", required = false) String filterMode) {
+    public String getMainPage(HttpServletRequest request, Model model, @RequestParam(name = "filter", required = false) String filterMode) {
+        User user = userService.getCurrentUser();
         RecordsContainerDto container = recordService.findAllRecords(filterMode);
+        model.addAttribute("userName", user.getName());
         model.addAttribute("records", container.getRecords());
         model.addAttribute("numberOfDoneRecords", container.getNumberOfDoneRecords());
         model.addAttribute("numberOfActiveRecords", container.getNumberOfActiveRecords());
