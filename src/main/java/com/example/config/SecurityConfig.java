@@ -32,8 +32,9 @@ public class SecurityConfig {
                 .csrf().disable()
                 .authorizeRequests()
                 .antMatchers("/", "/registration", "/error").permitAll()
-                .antMatchers("/account", "/account/**").hasAnyRole(UserRole.USER.name(), UserRole.ADMIN.name())
-                .antMatchers("/admin", "/admin/**").hasRole(UserRole.ADMIN.name())
+                .antMatchers("/account", "/account/**").hasAnyRole(UserRole.USER.name(), UserRole.ADMIN.name(), UserRole.SUPER_ADMIN.name())
+                .antMatchers("/admin", "/admin/**").hasAnyRole(UserRole.ADMIN.name(), UserRole.SUPER_ADMIN.name())
+                .antMatchers("/super-admin/**").hasRole(UserRole.SUPER_ADMIN.name())
                 .and().formLogin().loginPage("/login").permitAll().usernameParameter("email").passwordParameter("password").defaultSuccessUrl("/account")
                 .and().logout().logoutUrl("/logout").permitAll()
                 .and().build();
