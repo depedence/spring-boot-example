@@ -29,6 +29,7 @@ dependencies {
 
 	// Security
 	implementation("org.springframework.boot:spring-boot-starter-security")
+	implementation("org.thymeleaf.extras:thymeleaf-extras-springsecurity5")
 }
 
 tasks.withType<Test> {
